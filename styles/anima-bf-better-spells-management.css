@@ -1,0 +1,174 @@
+.spell-header-style-adaptation {
+    flex-flow: wrap !important;
+}
+
+.spell-header-title-style-adaptation {
+    flex: 1 !important;
+}
+
+.spell-header-sorts-and-filters-container {
+    flex-basis: 100%;
+    display: flex;
+    gap: 0.5rem 1.5rem;
+    flex-wrap: wrap;
+}
+
+.spell-header-sorts-and-filters-container .input {
+    border-radius: 10px;
+    background: #e7e5da;
+    font-weight: bold;
+    padding: 0.25rem 0.5rem;
+}
+
+.spell-header-sorts-and-filters-container select.input {
+    color: #000000;
+    line-height: 20px;
+}
+
+.spell-header-sorts-and-filters-container button {
+    width: auto;
+    line-height: 20px;
+}
+
+.justify-to-the-right {
+    margin-left: auto;
+}
+
+/* Dual Range Slider Styles */
+.dual-range-slider {
+    position: relative;
+    width: 250px;
+    height: 8px;
+}
+
+.slider-track {
+    position: absolute;
+    height: 100%;
+    background: #4CAF50;
+    border-radius: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    z-index: 5;
+}
+
+.slider-input {
+    position: absolute;
+    width: 100%;
+    height: 8px;
+    top: 0;
+    background: none;
+    pointer-events: none;
+    -webkit-appearance: none;
+    appearance: none;
+    z-index: 4;
+    left: 0px;
+}
+
+.slider-input::-webkit-slider-thumb {
+    width: 15px;
+    height: 15px;
+    border-radius: 20%;
+    margin-top: 8px;
+    background: #fff;
+    cursor: pointer;
+    pointer-events: auto;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    clip-path: polygon(0 100%, 50% 0, 100% 100%);
+    z-index: 6;
+}
+
+.slider-input::-moz-range-thumb {
+    width: 15px;
+    height: 15px;
+    border-radius: 20%;
+    margin-top: 8px;
+    background: #fff;
+    cursor: pointer;
+    pointer-events: auto;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    clip-path: polygon(0 100%, 50% 0, 100% 100%);
+}
+
+.slider-input::-webkit-slider-thumb:hover {
+    background: #0b7dda;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.slider-input::-moz-range-thumb:hover {
+    background: #0b7dda;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.slider-labels {
+    text-align: center;
+    font-weight: bold;
+    color: #fff;
+    width: 50px;
+}
+
+.hideDivByLevel {
+    display: none !important;
+}
+
+.hideDivByPath {
+    display: none !important;
+}
+
+.hideDivByCombat {
+    display: none !important;
+}
+
+.hideDivBySearch {
+    display: none !important;
+}
+
+.spell-sorts-container select.input:first-of-type{
+    border-radius: 10px 0px 0px 10px;
+}
+
+.spell-sorts-container select.input:last-of-type{
+    border-radius: 0px;
+    border-right: black 1px solid;
+}
+
+.spell-sorts-container button{
+    border-radius: 0px 10px 10px 0px !important;
+    line-height: 19px;
+    margin-left: -1px !important;
+}
+
+.spell-sorts-container button:hover {
+  background-color: #0b7dda;
+  color: #eee;
+}
+
+.spell-sorts-container select.input:hover {
+    box-shadow: unset !important;
+}
+
+.spell-sorts-container select.input:focus {
+    box-shadow: unset !important;
+}
+
+.spell-details-container {
+    margin-left: auto;
+    margin-right: 0.7rem;
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+.spell-details-container[open] {
+    flex-basis: 100%;
+}
+
+.spell-details-container summary {
+    font-weight: bold;
+    cursor: pointer;
+    justify-self: right;
+    width: 66px;
+}
+
+.spell-details-container summary::marker {
+    margin-right: auto;
+}

@@ -1,0 +1,21 @@
+{
+	"AnimaBeyondFantasy-BetterSpellsManagement": {
+		"filters-summary-label": "Filtros",
+		"sorts-summary-label": "Ordenar",
+		"sort-method-not-exist": "El método de ordenación no existe",
+		"sort-alphabetically-lable": "Ordenar alfabéticamente",
+		"sort-path-level-lable": "Ordenar por via y nivel",
+		"sort-path-lable": "Ordenar por via",
+		"sort-by-level-lable": "Ordenar por nivel",
+		"sorter-label": "Ordena por:",
+		"sorter-button-lable": "Ordenar!",
+		"filter-path-label": "Filtrar por via",
+		"filter-level-label": "Filtrar por nivel",
+		"filter-combat-label": "Filtrar por uso en combate",
+		"filter-search-label": "Buscar",
+		"filter-path-option-all": "Todas",
+		"filter-combat-option-any": "Cualquiera",
+		"filter-combat-option-attack": "Ataque",
+		"filter-combat-option-defense": "Defensa"
+	}
+}

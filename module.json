@@ -1,0 +1,31 @@
+{
+  "id": "anima-bf-better-spells-management",
+  "title": "Anima BF better spells management",
+  "version": "1.0.0",
+  "compatibility": {
+    "minimum": "13",
+    "verified": "13"
+  },
+  "flags": {
+    "canUpload": false
+  },
+  "description": "A simple module that adds some buttons to sort and filter the spells tab.",
+	"scripts": [
+		"scripts/anima-bf-better-spells-management.js"
+	],
+	"languages": [
+		{
+			"lang": "en",
+			"name": "English",
+			"path": "languages/en.json"
+		},
+		{
+			"lang": "es",
+			"name": "Español",
+			"path": "languages/es.json"
+		}
+	],
+	"styles": [
+		"styles/anima-bf-better-spells-management.css"
+	]
+}
