@@ -21,6 +21,7 @@ Hooks.on('renderActorSheet', (app, html, data) => {
 	filtersDetails.open = false;
 	filtersDetails.classList.add("spell-details-container");
 	const filtersSummary = document.createElement("summary");
+	filtersSummary.classList.add("spell-filters-summary-first");
 	filtersSummary.innerHTML = ABF_spellsManager.localize(LocalizationKeys.FILTERS_SUMMARY_LABEL);
 	filtersDetails.appendChild(filtersSummary);
 	// Create our container for our filter HTML elements
@@ -47,12 +48,19 @@ Hooks.on('renderActorSheet', (app, html, data) => {
 	// Create and Add Sorter Selects
 	sortersContainer.appendChild(Sorter.createSorterSection());
 	sortersDetails.appendChild(sortersContainer);
+	// Create Persistency Toggle
+	const persistencyToggle = PersistancyManager.createPersistancyToggle();
 	// Add all created HTML Elements
 	spellsHeader.appendChild(filtersDetails);
 	spellsHeader.appendChild(sortersDetails);
+	spellsHeader.appendChild(persistencyToggle);
+	// Load saved settings
+	PersistancyManager.loadSavedSettings();
 });
 
 class ABF_spellsManager {
+
+	static MODULE_ID = "anima-bf-better-spells-management";
 	static initialize() {}
 
 	static localize(key) {
@@ -93,8 +101,8 @@ class ABF_spellsManager {
 		spellsList.forEach(spellDiv => {
 			spellsContainer.appendChild(spellDiv);
 		});
+		PersistancyManager.saveCurrentSettings(true);
 		return spellsList;
-
 	}
 
 	/**
@@ -117,40 +125,52 @@ class ABF_spellsManager {
 				spellDiv.classList.add(hideType);
 			}
 		});
+		PersistancyManager.saveCurrentSettings(true);
 	}
 }
 
 class Sorter {
+
+	static mainSelectorId = "spell-sorter-main-selector";
+	static secondarySelectorId = "spell-sorter-secondary-selector";
+	static sorterButtonId = "spell-sorter-apply-button";
+	
 	static createSorterSection() {
 		const sorterSection = document.createElement("div");
 		sorterSection.classList.add("common-titled-input", "spell-sorts-container", "justify-to-the-right");
-		
-		const sorterLabel = document.createElement("p");
-		sorterLabel.classList.add("label");
-		sorterLabel.innerHTML = ABF_spellsManager.localize(LocalizationKeys.SORTER_LABEL);
+		// Create Label for Selectors
+		const sorterLabel = HTMLBuilder.createLabel(ABF_spellsManager.localize(LocalizationKeys.SORTER_LABEL));
 		sorterSection.appendChild(sorterLabel);
-		// Create Selectors
+		// Create Main Selector
 		const sorterMainSelector = document.createElement("select");
+		sorterMainSelector.id = this.mainSelectorId;
 		sorterMainSelector.classList.add("input");
-		
-		const optionAlphabetical = document.createElement("option");
-		optionAlphabetical.value = "alphabetical";
-		optionAlphabetical.innerHTML = ABF_spellsManager.localize(LocalizationKeys.SORT_ALPHABETICALLY_LABLE);
+		// Create and Add options to Main Selector
+		// Alphabetical
+		const optionAlphabetical = HTMLBuilder.createOption(
+			"alphabetical", ABF_spellsManager.localize(LocalizationKeys.SORT_ALPHABETICALLY_LABLE)
+		);
 		sorterMainSelector.appendChild(optionAlphabetical);
-		const optionPath = document.createElement("option");
-		optionPath.value = "path";
-		optionPath.innerHTML = ABF_spellsManager.localize(LocalizationKeys.SORT_PATH_LABLE);
+		// Path
+		const optionPath = HTMLBuilder.createOption(
+			"path", ABF_spellsManager.localize(LocalizationKeys.SORT_PATH_LABLE)
+		);
 		sorterMainSelector.appendChild(optionPath);
-		const optionLevel = document.createElement("option");
-		optionLevel.value = "level";
-		optionLevel.innerHTML = ABF_spellsManager.localize(LocalizationKeys.SORT_BY_LEVEL_LABLE);
+		// Level
+		const optionLevel = HTMLBuilder.createOption(
+			"level", ABF_spellsManager.localize(LocalizationKeys.SORT_BY_LEVEL_LABLE)
+		);
 		sorterMainSelector.appendChild(optionLevel);
-		
+		// Add Main Selector to section
 		sorterSection.appendChild(sorterMainSelector);
+		// Create secondary selector by cloning main selector
 		const sorterSecondarySelector = sorterMainSelector.cloneNode(true);
+		sorterSecondarySelector.id = this.secondarySelectorId;
+		// Add Secondary Selector to section
 		sorterSection.appendChild(sorterSecondarySelector);
 
 		const sorterButton = document.createElement("button");
+		sorterButton.id = this.sorterButtonId;
 		sorterButton.type = "button";
 		sorterButton.classList.add("input");
 		sorterButton.innerHTML = ABF_spellsManager.localize(LocalizationKeys.SORTER_BUTTON_LABLE);
@@ -199,22 +219,6 @@ class Sorter {
 	 * ---------------------------------------------ALPHA SORTER--------------------------------------------- *
 	 * ------------------------------------------------------------------------------------------------------ *
 	 *																										*/
-
-	/**
-	 * Creates and returns a button that sorts the spells alphabetically when clicked
-	 * @returns {HTMLElement}
-	 */
-	static createSorterAlphabeticalButton() {
-		// Create the buttons
-		const alphabeticalButton = document.createElement("button");
-		alphabeticalButton.type = "button";
-		alphabeticalButton.classList.add("input");
-		alphabeticalButton.innerHTML = ABF_spellsManager.localize(LocalizationKeys.SORT_ALPHABETICALLY_LABLE);
-		// Add Event Listeners
-			alphabeticalButton.addEventListener("click", () => {ABF_spellsManager.applySorter(Sorter.sortAlphabetically)});
-		// Return
-		return alphabeticalButton;
-	}
 
 	/**
 	 * By comparing its names alphabetically, returns -1 if spellA goes before spellB, 1 if spellB goes before spellA, 0 if they are equal
@@ -318,6 +322,12 @@ class Sorter {
 
 class Filters {
 
+	static pathsSelectorId = "spell-paths-selector";
+	static levelMinInputId = "spell-level-min-input";
+	static levelMaxInputId = "spell-level-max-input";
+	static combatSelectorId = "spell-combat-selector";
+	static searchInputId = "spell-search-input";
+
 	/**																										**
 	 * ------------------------------------------------------------------------------------------------------ *
 	 * ---------------------------------------------PATHS FILTER--------------------------------------------- *
@@ -343,9 +353,7 @@ class Filters {
 	 * @returns {HTMLElement}
 	 */
 	static createFilterPathLabel() {
-		const pathLabel = document.createElement("p");
-		pathLabel.classList.add("label");
-		pathLabel.innerHTML = ABF_spellsManager.localize(LocalizationKeys.FILTER_PATH_LABEL);
+		const pathLabel = HTMLBuilder.createLabel(ABF_spellsManager.localize(LocalizationKeys.FILTER_PATH_LABEL));
 		return pathLabel;
 	}
 
@@ -365,20 +373,18 @@ class Filters {
 		const paths = this.getPaths(spellsList);
 		// Create Selector
 		const pathsSelector = document.createElement("select");
+		pathsSelector.id = this.pathsSelectorId;
 		pathsSelector.classList.add("input")
 		// Add default "All" option and add it as default
-		const defaultOption = document.createElement("option");
-		defaultOption.value = "All";
-		defaultOption.innerHTML = ABF_spellsManager.localize(LocalizationKeys.FILTER_PATH_OPTION_ALL);
-		defaultOption.selected = true;
+		const defaultOption = HTMLBuilder.createOption(
+			"All", ABF_spellsManager.localize(LocalizationKeys.FILTER_PATH_OPTION_ALL), true
+		);
 		pathsSelector.appendChild(defaultOption);
 		// Add options for each path
 		paths.forEach(path => {
-			let option = document.createElement("option");
-			option.value = path;
 			let text = path.split(/(?=[A-Z])/).join(" ").toLowerCase();
 			text = text.charAt(0).toUpperCase() + text.slice(1);
-			option.innerHTML = text;
+			let option = HTMLBuilder.createOption(path, text);
 			pathsSelector.appendChild(option);
 		});
 		// Add Selector to Group
@@ -390,7 +396,7 @@ class Filters {
 	}
 
 	static validDivSpellPath(spellDiv, path) {
-		if (path === "All") return true;
+		if (path.value === "All") return true;
 		const spellPath = spellDiv
 								.getElementsByClassName("via").item(0)
 								.getElementsByTagName("select").item(0)
@@ -432,9 +438,7 @@ class Filters {
 	 * @returns {HTMLElement}
 	 */
 	static createFilterLevelLabel() {
-		const levelLabel = document.createElement("p");
-		levelLabel.classList.add("label");
-		levelLabel.innerHTML = ABF_spellsManager.localize(LocalizationKeys.FILTER_LEVEL_LABEL);
+		const levelLabel = HTMLBuilder.createLabel(ABF_spellsManager.localize(LocalizationKeys.FILTER_LEVEL_LABEL));
 		return levelLabel;
 	}
 
@@ -472,11 +476,13 @@ class Filters {
 
 		// Create min input
 		const minInput = templateInput.cloneNode();
+		minInput.id = this.levelMinInputId;
 		minInput.classList.add("slider-min");
 		minInput.value = minMaxLevels[0];
 		
 		// Create max input
 		const maxInput = templateInput.cloneNode();
+		maxInput.id = this.levelMaxInputId;
 		maxInput.classList.add("slider-max");
 		maxInput.value = minMaxLevels[1];
 		
@@ -570,9 +576,7 @@ class Filters {
 	 * @returns {HTMLElement}
 	 */
 	static createFilterCombatLabel() {
-		const combatLabel = document.createElement("p");
-		combatLabel.classList.add("label");
-		combatLabel.innerHTML = ABF_spellsManager.localize(LocalizationKeys.FILTER_COMBAT_LABEL);
+		const combatLabel = HTMLBuilder.createLabel(ABF_spellsManager.localize(LocalizationKeys.FILTER_COMBAT_LABEL));
 		return combatLabel;
 	}
 
@@ -585,24 +589,24 @@ class Filters {
 		filterCombatSelectorGroup.appendChild(combatSelectorLabel);
 		// Create Selector
 		const combatSelector = document.createElement("select");
+		combatSelector.id = this.combatSelectorId;
 		combatSelector.classList.add("input");
 		// Add options for each path
-		const allOption = document.createElement("option");
-		allOption.value = "any";
-		allOption.innerHTML = ABF_spellsManager.localize(LocalizationKeys.FILTER_COMBAT_OPTION_ANY);
-		allOption.selected = true;
+		const allOption = HTMLBuilder.createOption(
+			"any", ABF_spellsManager.localize(LocalizationKeys.FILTER_COMBAT_OPTION_ANY), true
+		);
 		combatSelector.appendChild(allOption);
-		const attackOption = document.createElement("option");
-		attackOption.value = "attack";
-		attackOption.innerHTML = ABF_spellsManager.localize(LocalizationKeys.FILTER_COMBAT_OPTION_ATTACK);
+		const attackOption = HTMLBuilder.createOption(
+			"attack", ABF_spellsManager.localize(LocalizationKeys.FILTER_COMBAT_OPTION_ATTACK)
+		);
 		combatSelector.appendChild(attackOption);
-		const defenseOption = document.createElement("option");
-		defenseOption.value = "defense";
-		defenseOption.innerHTML = ABF_spellsManager.localize(LocalizationKeys.FILTER_COMBAT_OPTION_DEFENSE);
+		const defenseOption = HTMLBuilder.createOption(
+			"defense", ABF_spellsManager.localize(LocalizationKeys.FILTER_COMBAT_OPTION_DEFENSE)
+		);
 		combatSelector.appendChild(defenseOption);
-		const noneOption = document.createElement("option");
-		noneOption.value = "none";
-		noneOption.innerHTML = "-";
+		const noneOption = HTMLBuilder.createOption(
+			"none", "-"
+		);
 		combatSelector.appendChild(noneOption);
 		// Add Selector to Group
 		filterCombatSelectorGroup.appendChild(combatSelector);
@@ -613,7 +617,7 @@ class Filters {
 	}
 
 	static validDivSpellCombat(spellDiv, combatUsage) {
-		if (combatUsage === "any") return true;
+		if (combatUsage.value === "any") return true;
 		const spellCombatUsage = spellDiv
 								.getElementsByClassName("combat-type").item(0)
 								.getElementsByTagName("select").item(0)
@@ -628,9 +632,7 @@ class Filters {
 	 *																										*/
 
 	static createFilterSearchLabel() {
-		const searchLabel = document.createElement("p");
-		searchLabel.classList.add("label");
-		searchLabel.innerHTML = ABF_spellsManager.localize(LocalizationKeys.FILTER_SEARCH_LABEL);
+		const searchLabel = HTMLBuilder.createLabel(ABF_spellsManager.localize(LocalizationKeys.FILTER_SEARCH_LABEL));
 		return searchLabel;
 	}
 
@@ -643,6 +645,7 @@ class Filters {
 		filterSearchGroup.appendChild(searchLabel);
 		// Create Input
 		const searchInput = document.createElement("input");
+		searchInput.id = this.searchInputId;
 		searchInput.type = "text";
 		searchInput.classList.add("input");
 		// Add Input to Group
@@ -658,6 +661,103 @@ class Filters {
 		if (searchTerm.value === "") return true;
 		if (name.length < searchTerm.value.length) return false;
 		return name.includes(searchTerm.value.toUpperCase());
+	}
+}
+
+class PersistancyManager {
+	
+	static flagId = "spell-filters-sorters-settings";
+	static toggleId = "spell-filters-sorters-persistency-toggle";
+
+	static saveCurrentSettings(checkToggleState) {
+		if (checkToggleState) {
+			if (!document.getElementById(this.toggleId)) return;
+			if (!document.getElementById(this.toggleId).checked) return;
+		}
+		const mainSelectorValue = document.getElementById(Sorter.mainSelectorId).value;
+		const secondarySelectorValue = document.getElementById(Sorter.secondarySelectorId).value;
+		const pathsSelectorValue = document.getElementById(Filters.pathsSelectorId).value;
+		const levelMinValue = document.getElementById(Filters.levelMinInputId).value;
+		const levelMaxValue = document.getElementById(Filters.levelMaxInputId).value;
+		const combatSelectorValue = document.getElementById(Filters.combatSelectorId).value;
+		const searchInputValue = document.getElementById(Filters.searchInputId).value;
+		game.users.get(game.userId).setFlag(ABF_spellsManager.MODULE_ID, this.flagId, {
+			mainSelectorValue: mainSelectorValue,
+			secondarySelectorValue: secondarySelectorValue,
+			pathsSelectorValue: pathsSelectorValue,
+			levelMinValue: levelMinValue,
+			levelMaxValue: levelMaxValue,
+			combatSelectorValue: combatSelectorValue,
+			searchInputValue: searchInputValue
+		});
+	}
+
+	static loadSavedSettings() {
+		if (!game.users.get(game.userId).getFlag(ABF_spellsManager.MODULE_ID, this.toggleId)) return;
+		const savedSettings = game.users.get(game.userId).getFlag(ABF_spellsManager.MODULE_ID, this.flagId);
+		if (savedSettings === undefined) return;
+		document.getElementById(Sorter.mainSelectorId).value = savedSettings.mainSelectorValue;
+		document.getElementById(Sorter.secondarySelectorId).value = savedSettings.secondarySelectorValue;
+		document.getElementById(Sorter.sorterButtonId).click();
+		const pathsSelector = document.getElementById(Filters.pathsSelectorId)
+		pathsSelector.value = savedSettings.pathsSelectorValue;
+		pathsSelector.dispatchEvent(new Event('input'));
+		document.getElementById(Filters.levelMinInputId).value = savedSettings.levelMinValue;
+		const levelMaxInput = document.getElementById(Filters.levelMaxInputId);
+		levelMaxInput.value = savedSettings.levelMaxValue;
+		levelMaxInput.dispatchEvent(new Event('input'));
+		const combatSelector = document.getElementById(Filters.combatSelectorId);
+		combatSelector.value = savedSettings.combatSelectorValue;
+		combatSelector.dispatchEvent(new Event('input'));
+		const searchInput = document.getElementById(Filters.searchInputId);
+		searchInput.value = savedSettings.searchInputValue;
+		searchInput.dispatchEvent(new Event('input'));
+		// Enable persistency toggle since settings would only ahve loaded if it was active
+		document.getElementById(this.toggleId).checked = true;
+	}
+
+	static createPersistancyToggleLabel() {
+		const label = HTMLBuilder.createLabel(ABF_spellsManager.localize(LocalizationKeys.PERSISTANCY_TOGGLE_LABEL));
+		return label;
+	}
+
+	static createPersistancyToggle() {
+		const toggleContainer = document.createElement("div");
+		toggleContainer.classList.add("common-titled-input", "spell-persistency-toggle-container");
+		// Create Toggle
+		const toggle = document.createElement("input");
+		toggle.id = this.toggleId;
+		toggle.type = "checkbox";
+		toggle.classList.add("input");
+		// Add Label
+		const label = this.createPersistancyToggleLabel();
+		toggleContainer.appendChild(label);
+		// Add Toggle to Container
+		toggleContainer.appendChild(toggle);
+		// Add Event Listener
+		toggle.addEventListener("change", () => {
+			game.users.get(game.userId).setFlag(ABF_spellsManager.MODULE_ID, this.toggleId, toggle.checked);
+		});
+
+		// Return
+		return toggleContainer;
+	}
+}
+
+class HTMLBuilder {
+	static createLabel(text) {
+		const label = document.createElement("p");
+		label.classList.add("label");
+		label.innerHTML = text;
+		return label;
+	}
+
+	static createOption(value, text, isSelected=false) {
+		const option = document.createElement("option");
+		option.value = value;
+		option.innerHTML = text;
+		if (isSelected) option.selected = true;
+		return option;
 	}
 }
 
@@ -678,5 +778,6 @@ const LocalizationKeys = Object.freeze({
 	FILTER_PATH_OPTION_ALL: "filter-path-option-all",
 	FILTER_COMBAT_OPTION_ANY: "filter-combat-option-any",
 	FILTER_COMBAT_OPTION_ATTACK: "filter-combat-option-attack",
-	FILTER_COMBAT_OPTION_DEFENSE: "filter-combat-option-defense"
+	FILTER_COMBAT_OPTION_DEFENSE: "filter-combat-option-defense",
+	PERSISTANCY_TOGGLE_LABEL: "persistancy-toggle-label"
 });

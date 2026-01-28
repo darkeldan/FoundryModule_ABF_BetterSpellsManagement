@@ -162,13 +162,26 @@
     flex-basis: 100%;
 }
 
+.spell-filters-summary-first {
+    right: 100px;
+}
+
 .spell-details-container summary {
     font-weight: bold;
     cursor: pointer;
     justify-self: right;
     width: 66px;
+    position: absolute;
+    top: 7px;
 }
 
 .spell-details-container summary::marker {
     margin-right: auto;
+}
+
+.spell-persistency-toggle-container {
+    position: absolute;
+    top: 0px;
+    justify-self: right;
+    right: 180px;
 }

@@ -16,6 +16,7 @@
 		"filter-path-option-all": "Todas",
 		"filter-combat-option-any": "Cualquiera",
 		"filter-combat-option-attack": "Ataque",
-		"filter-combat-option-defense": "Defensa"
+		"filter-combat-option-defense": "Defensa",
+		"persistancy-toggle-label": "Persistencia"
 	}
 }
